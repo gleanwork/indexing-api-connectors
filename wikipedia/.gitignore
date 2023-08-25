@@ -1,0 +1,11 @@
+# Python cache
+__pycache__
+
+# Pythom virtual Environment
+__wikipedia__
+
+# Environment files
+.env*
+
+# Test files
+test*
