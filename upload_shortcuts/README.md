@@ -6,15 +6,15 @@ This script allows users to upload shortcuts in bulk to Glean via the indexing A
 
 The CSV should contain the following columns:
 
-- `urlTemplate`: (String) For variable shortcuts, this contains the URL template. Note that destinationUrl contains the default URL. This field can be left empty.
-- `inputAlias`: (String, Required) The link text following the viewPrefix as entered by the user. For example, if the view prefix is `go/` and the shortened URL is `go/abc`, then `abc` is the inputAlias.
+- `url_template`: (String) For variable shortcuts, this contains the URL template. Note that destination_url contains the default URL. This field can be left empty.
+- `input_alias`: (String, Required) The link text following the viewPrefix as entered by the user. For example, if the view prefix is `go/` and the shortened URL is `go/abc`, then `abc` is the inputAlias.
 - `description`: (String) A short, plain text blurb to help people understand the intent of the shortcut.
-- `destinationUrl`: (String, Required) The destination URL for the shortcut.
-- `createdBy`: (String, Required) Email of the user who created this shortcut.
-- `updatedBy`: (String) Email of the user who last updated this shortcut.
+- `destination_url`: (String, Required) The destination URL for the shortcut.
+- `created_by`: (String, Required) Email of the user who created this shortcut.
+- `updated_by`: (String) Email of the user who last updated this shortcut.
 - `unlisted`: (Boolean) Whether this shortcut is unlisted or not. Unlisted shortcuts are visible to the author and admins only.
-- `createTime`: (Integer) The time the shortcut was created, represented in epoch seconds.
-- `updateTime`: (Integer) The time the shortcut was last updated, represented in epoch seconds.
+- `create_time`: (Integer) The time the shortcut was created, represented in epoch seconds.
+- `update_time`: (Integer) The time the shortcut was last updated, represented in epoch seconds.
 
 > **Note**: Rows without required fields will cause the script to fail.
 
