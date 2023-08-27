@@ -38,8 +38,8 @@ Replace `path_to_csv_file.csv` with the path to your actual CSV file.
 
 ## Constants
 
-- **DOMAIN**: The domain for the Glean APIs.
-- **TOKEN**: Bearer token for authentication.
+- **GLEAN_DOMAIN**: The domain for the Glean APIs.
+- **BEARER_TOKEN**: Bearer token for authentication.
 - **BATCH_SIZE**: Number of shortcuts to process in a single API call. The default is set to 1000.
 
 ## API Documentation
