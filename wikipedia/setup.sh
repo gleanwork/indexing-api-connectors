@@ -15,4 +15,4 @@ echo "Virtual environment activated"
 pip install -U pip
 pip install https://app.glean.com/meta/indexing_api_client.zip
 pip install -r requirements.txt
-echo "Requirements sucessfully installed"
+echo "Requirements successfully installed"
