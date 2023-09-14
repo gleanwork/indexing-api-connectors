@@ -1,6 +1,6 @@
 certifi==2023.7.22
 charset-normalizer==3.2.0
-glean-indexing-api-client @ https://app.glean.com/meta/indexing_api_client.zip#sha256=b2b868ad07b3b49a7b6b1ad0b725824176b175544a7bf1b6ceb7baa72eee3646
+glean-indexing-api-client @ https://app.glean.com/meta/indexing_api_client.zip
 idna==3.4
 python-dateutil==2.8.2
 requests==2.31.0
