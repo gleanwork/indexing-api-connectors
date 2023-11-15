@@ -1,6 +1,9 @@
 import glean_indexing_api_client as indexing_api
 import os
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DATASOURCE_NAME = "databricks"
 DASHBOARD_OBJECT_NAME = "Dashboard"
