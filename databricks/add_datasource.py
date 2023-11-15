@@ -2,16 +2,16 @@ import glean_indexing_api_client as indexing_api
 from glean_indexing_api_client.api import datasources_api
 from glean_indexing_api_client.model.custom_datasource_config import CustomDatasourceConfig
 from glean_indexing_api_client.model.object_definition import ObjectDefinition
-from constants import DATASOURCE_NAME, DASHBOARD_OBJECT_NAME, API_CLIENT
+from constants import DASHBOARD_OBJECT_NAME, API_CLIENT
 
-def add_datasource():
+def add_datasource(datasource_name: str):
     """
     Inserts/updates the custom datasource configuration.
     (Preferably, should be done via Glean's workspace settings: https://app.glean.com/admin/setup/apps/)
     """
     
     datasource_config = CustomDatasourceConfig(
-        name=DATASOURCE_NAME,
+        name=datasource_name,
         display_name="Databricks Staging",
         datasource_category="KNOWLEDGE_HUB",
         url_regex="^https?://e2-dogfood-ext-glean-staging-1.staging.cloud.databricks.com/.*",

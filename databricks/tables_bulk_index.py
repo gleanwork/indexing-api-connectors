@@ -10,6 +10,7 @@ from glean_indexing_api_client.model.document_permissions_definition import Docu
 import json
 import requests
 import time
+from constants import API_CLIENT
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -77,7 +78,7 @@ def issue_bulk_index_documents_request(
     Issue a /bulkindexdocuments request
     Fails with an indexing_api.ApiException in case of an error
     """
-    document_api = documents_api.DocumentsApi(api_client)
+    document_api = documents_api.DocumentsApi(API_CLIENT)
 
     document_api.bulkindexdocuments_post(
         BulkIndexDocumentsRequest(
@@ -102,7 +103,7 @@ def crawl_tables(upload_id: str):
             docs = []
             for table in tables.get("tables", []):
                 doc = get_document_definition(table)
-                docs.add(doc)
+                docs.append(doc)
             try:
                 issue_bulk_index_documents_request(
                     upload_id=upload_id,
@@ -114,10 +115,3 @@ def crawl_tables(upload_id: str):
                 print("Exception while bulk indexing documents: %s\n" % e.body)
                 exit(1)
 
-
-def main():
-    crawl_tables("test-id")
-
-
-if __name__ == "__main__":
-    main()

@@ -121,13 +121,9 @@ def upload_dashboards(dashboards: List[dict]):
             )
         )
     print(documents)
-    # bulk_index_documents_sequential(
-    #     upload_id=f'test',
-    #     documents=documents,
-    #     page_size=PAGE_SIZE)
 
 
-def crawl_dashboards():
+def crawl_dashboards(upload_id: str):
     page = 1
 
     # TODO: Proper checkpointing
@@ -254,7 +250,3 @@ def main():
     # except indexing_api.ApiException as e:
     #     print("Exception while bulk indexing documents: %s\n" % e.body)
     #     exit(1)
-
-
-if __name__ == "__main__":
-    main()
