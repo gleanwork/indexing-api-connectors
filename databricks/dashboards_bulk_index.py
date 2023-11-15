@@ -10,8 +10,11 @@ from glean_indexing_api_client.model.document_permissions_definition import Docu
 import json
 import requests
 import time
+import logging
 
+from typing import List
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from constants import send_request, DATASOURCE_NAME, DASHBOARD_OBJECT_NAME, BASE_URL, API_CLIENT
 
 PAGE_SIZE = 10
 
@@ -87,141 +90,170 @@ example_dashboard = json.loads("""{
 }""")
 
 
-
-def fetch_all_wikipedia_articles(search_term: str = 'pizza', limit: int = 50):
-    """Fetch Wikipedia articles related to a search term"""
-    wikipedia_api_url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch={search_term}%20&utf8=1&srlimit={limit}"
-    response = requests.get(wikipedia_api_url)
-    return response.json()["query"]["search"]
-
-
-def get_document_definition(article):
-    """Construct document definition from Wikipedia article"""
-    title = article["title"]
-    url_suffix = title.replace(" ", "_")  # URL is derived from the title
-    page_url = f"https://en.wikipedia.org/wiki/{url_suffix}"
-    page_snippet = article["snippet"]
-    page_id = str(article["pageid"])
-    return DocumentDefinition(
-        datasource=DATASOURCE,
-        object_type="Article",
-        id=page_id,
-        title=title,
-        view_url=page_url,  # should match the url_regex in the datasource config
-        body=ContentDefinition(
-            mime_type="text/html",
-            text_content=page_snippet),
-        permissions=DocumentPermissionsDefinition(allow_anonymous_access=True)
-    )
-
-
-def issue_bulk_index_documents_request(
-        upload_id,
-        datasource,
-        documents,
-        is_first_page,
-        is_last_page):
-    """
-    Issue a /bulkindexdocuments request
-    Fails with an indexing_api.ApiException in case of an error
-    """
-    document_api = documents_api.DocumentsApi(api_client)
-
-    document_api.bulkindexdocuments_post(
-        BulkIndexDocumentsRequest(
-            upload_id=upload_id,
-            datasource=datasource,
-            documents=documents,
-            is_first_page=is_first_page,
-            is_last_page=is_last_page,
-            force_restart_upload=False
-        ))
-
-    print("Bulk indexed %d documents, is_first_page: %s, is_last_page: %s" %
-          (len(documents), is_first_page, is_last_page), flush=True)
-
-
-def bulk_index_documents_sequential(upload_id, articles, page_size=10):
-    """Bulk index documents sequentially"""
+def upload_dashboards(dashboards: List[dict]):
+    """Upload dashboards to Glean"""
     documents = []
+    
+    # Convert dashboards to document representations
+    for dashboard in dashboards:
+        # Stitch content from dashboard's widgets
+        stitched_content = ''
+        stitched_content += dashboard['name']
+        if dashboard['widgets']:
+            # TODO: Consider supporting further details in the widget; such as query details for a visualization
+            for widget in dashboard['widgets']:
+                options = widget['options']
+                visualization = widget['visualization']
+                stitched_content += options['title'] + ' ' + options['description'] + ' ' + visualization['name'] + ' ' + visualization['description']
 
-    issue_bulk_index_documents_request(
-        upload_id=upload_id,
-        datasource=DATASOURCE,
-        documents=[],
-        is_first_page=True,
-        is_last_page=False)
-
-    for (i, article) in enumerate(articles):
-        documents.append(get_document_definition(article))
-        if (i + 1) % page_size == 0:
-            issue_bulk_index_documents_request(
-                upload_id=upload_id,
-                datasource=DATASOURCE,
-                documents=documents.copy(),
-                is_first_page=False,
-                is_last_page=False)
-            documents.clear()
-
-    issue_bulk_index_documents_request(
-        upload_id=upload_id,
-        datasource=DATASOURCE,
-        documents=[],
-        is_first_page=False,
-        is_last_page=True)
+        documents.append(
+            DocumentDefinition(
+                datasource=DATASOURCE_NAME,
+                object_type=DASHBOARD_OBJECT_NAME,
+                id=dashboard['id'],
+                title=dashboard['name'],
+                view_url=f'{BASE_URL}/sql/dashboards/{dashboard["id"]}',
+                body=ContentDefinition(
+                    mime_type='text/plain',
+                    text_content=stitched_content),
+                # TODO: Add permissions via dashboard's ACL from https://docs.databricks.com/api/workspace/dbsqlpermissions/get
+                permissions=DocumentPermissionsDefinition(allow_anonymous_access=True)
+            )
+        )
+    print(documents)
+    # bulk_index_documents_sequential(
+    #     upload_id=f'test',
+    #     documents=documents,
+    #     page_size=PAGE_SIZE)
 
 
-def bulk_index_documents_concurrent(upload_id, articles, page_size=10):
-    """Bulk index documents concurrently, allowing for intermediate pages being uploaded parallely"""
-    documents = []
-    NUM_THREADS = 5
+def crawl_dashboards():
+    page = 1
 
-    issue_bulk_index_documents_request(
-        upload_id=upload_id,
-        datasource=DATASOURCE,
-        documents=[],
-        is_first_page=True,
-        is_last_page=False)
+    # TODO: Proper checkpointing
+    while True:
+        response = send_request('/api/2.0/preview/sql/dashboards')
+        results = response['results']
+        if len(results) == 0:
+            logging.info(f'Empty dashboards response for page {page}. Finishing crawl')
+            break
+        logging.info(f'Listed {len(results)} dashboards on page {page}')
+        upload_dashboards(results)
 
-    with ThreadPoolExecutor(max_workers=NUM_THREADS) as executor:
-        futures = []
-        for (i, article) in enumerate(articles):
-            documents.append(get_document_definition(article))
-            if (i + 1) % page_size == 0:
-                futures.append(
-                    executor.submit(
-                        issue_bulk_index_documents_request,
-                        upload_id,
-                        DATASOURCE,
-                        documents.copy(),
-                        False,
-                        False))
-                documents.clear()
-        for future in as_completed(futures):
-            future.result()
+        if response['count'] < response['page_size']:
+            logging.info(f'Unfilled dashboard page {page}. Finishing crawl')
+            break
+        else:
+            page += 1
 
-    issue_bulk_index_documents_request(
-        upload_id=upload_id,
-        datasource=DATASOURCE,
-        documents=[],
-        is_first_page=False,
-        is_last_page=True)
+
+# def issue_bulk_index_documents_request(
+#         upload_id,
+#         datasource,
+#         documents,
+#         is_first_page,
+#         is_last_page):
+#     """
+#     Issue a /bulkindexdocuments request
+#     Fails with an indexing_api.ApiException in case of an error
+#     """
+#     document_api = documents_api.DocumentsApi(API_CLIENT)
+
+#     document_api.bulkindexdocuments_post(
+#         BulkIndexDocumentsRequest(
+#             upload_id=upload_id,
+#             datasource=datasource,
+#             documents=documents,
+#             is_first_page=is_first_page,
+#             is_last_page=is_last_page,
+#             force_restart_upload=False
+#         ))
+
+#     print("Bulk indexed %d documents, is_first_page: %s, is_last_page: %s" %
+#           (len(documents), is_first_page, is_last_page), flush=True)
+
+
+# def bulk_index_documents_sequential(upload_id, articles, page_size=10):
+#     """Bulk index documents sequentially"""
+#     documents = []
+
+#     issue_bulk_index_documents_request(
+#         upload_id=upload_id,
+#         datasource=DATASOURCE_NAME,
+#         documents=[],
+#         is_first_page=True,
+#         is_last_page=False)
+
+#     for (i, article) in enumerate(articles):
+#         documents.append(get_document_definition(article))
+#         if (i + 1) % page_size == 0:
+#             issue_bulk_index_documents_request(
+#                 upload_id=upload_id,
+#                 datasource=DATASOURCE_NAME,
+#                 documents=documents.copy(),
+#                 is_first_page=False,
+#                 is_last_page=False)
+#             documents.clear()
+
+#     issue_bulk_index_documents_request(
+#         upload_id=upload_id,
+#         datasource=DATASOURCE_NAME,
+#         documents=[],
+#         is_first_page=False,
+#         is_last_page=True)
+
+
+# def bulk_index_documents_concurrent(upload_id, articles, page_size=10):
+#     """Bulk index documents concurrently, allowing for intermediate pages being uploaded parallely"""
+#     documents = []
+#     NUM_THREADS = 5
+
+#     issue_bulk_index_documents_request(
+#         upload_id=upload_id,
+#         datasource=DATASOURCE_NAME,
+#         documents=[],
+#         is_first_page=True,
+#         is_last_page=False)
+
+#     with ThreadPoolExecutor(max_workers=NUM_THREADS) as executor:
+#         futures = []
+#         for (i, article) in enumerate(articles):
+#             documents.append(get_document_definition(article))
+#             if (i + 1) % page_size == 0:
+#                 futures.append(
+#                     executor.submit(
+#                         issue_bulk_index_documents_request,
+#                         upload_id,
+#                         DATASOURCE_NAME,
+#                         documents.copy(),
+#                         False,
+#                         False))
+#                 documents.clear()
+#         for future in as_completed(futures):
+#             future.result()
+
+#     issue_bulk_index_documents_request(
+#         upload_id=upload_id,
+#         datasource=DATASOURCE_NAME,
+#         documents=[],
+#         is_first_page=False,
+#         is_last_page=True)
 
 
 def main():
-    articles = fetch_all_wikipedia_articles('pizza', 50)
-    upload_id = f'upload-wikipedia-documents-{time.time()}'
-    try:
-        bulk_index_documents_sequential(upload_id, articles)
+    crawl_dashboards()
+    # upload_id = f'upload-wikipedia-documents-{time.time()}'
+    # try:
+    #     bulk_index_documents_sequential(upload_id, articles)
 
-        # Alternatively, bulk index documents concurrently
-        # bulk_index_documents_concurrent(upload_id, articles)
+    #     # Alternatively, bulk index documents concurrently
+    #     # bulk_index_documents_concurrent(upload_id, articles)
 
-        print("Bulk indexing completed successfully.")
+    #     print("Bulk indexing completed successfully.")
 
-    except indexing_api.ApiException as e:
-        print("Exception while bulk indexing documents: %s\n" % e.body)
-        exit(1)
+    # except indexing_api.ApiException as e:
+    #     print("Exception while bulk indexing documents: %s\n" % e.body)
+    #     exit(1)
 
 
 if __name__ == "__main__":

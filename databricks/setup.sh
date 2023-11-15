@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
-ENV_DIR="__wikipedia__"
-PYTHON="/usr/bin/python3"
+ENV_DIR="__db_hackathon_venv__"
 
 if [ ! -d "$ENV_DIR" ]; then
-    $PYTHON -m venv $ENV_DIR
+    python -m venv $ENV_DIR
     echo "Virtual environment created at ./$ENV_DIR"
 fi;
 

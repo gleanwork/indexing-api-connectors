@@ -1,15 +1,7 @@
 import glean_indexing_api_client as indexing_api
 from glean_indexing_api_client.api import datasources_api
-from glean_indexing_api_client.api import documents_api
 from glean_indexing_api_client.model.custom_datasource_config import CustomDatasourceConfig
 from glean_indexing_api_client.model.object_definition import ObjectDefinition
-from glean_indexing_api_client.model.bulk_index_documents_request import BulkIndexDocumentsRequest
-from glean_indexing_api_client.model.document_definition import DocumentDefinition
-from glean_indexing_api_client.model.content_definition import ContentDefinition
-from glean_indexing_api_client.model.document_permissions_definition import DocumentPermissionsDefinition
-import json
-import requests
-import time
 from constants import DATASOURCE_NAME, DASHBOARD_OBJECT_NAME, API_CLIENT
 
 def add_datasource():

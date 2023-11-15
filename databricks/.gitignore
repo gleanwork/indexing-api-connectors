@@ -2,7 +2,7 @@
 __pycache__
 
 # Pythom virtual Environment
-__wikipedia__
+__db_hackathon_venv__
 
 # Environment files
 .env*
