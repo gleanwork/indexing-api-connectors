@@ -10,14 +10,6 @@ from constants import API_CLIENT
 import constants
 
 PAGE_SIZE = 10
-
-with open('testdata/catalog.json') as f:
-    example_catalog = json.load(f)
-with open('testdata/schemas.json') as f:
-    example_schemas = json.load(f)
-with open('testdata/tables.json') as f:
-    example_tables = json.load(f)
-
 FETCH = True
 
 
@@ -25,6 +17,8 @@ def fetch_all_catalogs():
     if FETCH:
         return constants.send_request("/api/2.1/unity-catalog/catalogs")
     else:
+        with open('testdata/catalog.json') as f:
+            example_catalog = json.load(f)
         return example_catalog
 
 
@@ -32,6 +26,8 @@ def fetch_all_schemas(catalog):
     if FETCH:
         return constants.send_request("/api/2.1/unity-catalog/schemas", params={"catalog_name": catalog["name"]})
     else:
+        with open('testdata/schemas.json') as f:
+            example_schemas = json.load(f)
         return example_schemas
 
 
@@ -40,6 +36,8 @@ def fetch_all_tables(schema):
         return constants.send_request("/api/2.1/unity-catalog/tables",
                                       params={"catalog_name": schema["catalog_name"], "schema_name": schema["name"]})
     else:
+        with open('testdata/tables.json') as f:
+            example_tables = json.load(f)
         return example_tables
 
 

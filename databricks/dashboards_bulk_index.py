@@ -19,7 +19,7 @@ from constants import send_request, DATASOURCE_NAME, DASHBOARD_OBJECT_NAME, BASE
 
 PAGE_SIZE = 10
 
-def upload_dashboards(dashboards: List[dict], upload_id: str):
+def _upload_dashboards(dashboards: List[dict], upload_id: str):
     """Upload dashboards to Glean"""
     documents = []
     
@@ -67,7 +67,7 @@ def upload_dashboards(dashboards: List[dict], upload_id: str):
 
 
 
-def fetch_dashboard(dashboard_id: str):
+def _fetch_dashboard(dashboard_id: str):
     return send_request(f'/api/2.0/preview/sql/dashboards/{dashboard_id}')
 
 def crawl_dashboards(upload_id: str):
@@ -82,30 +82,12 @@ def crawl_dashboards(upload_id: str):
             break
         logging.info(f'Listed {len(results)} dashboards on page {page}')
         # We need to fetch the individual dashboards to get their widgets; otherwise widgets shows up as None
-        fetched_dashboards = [fetch_dashboard(dashboard['id']) for dashboard in results]
+        fetched_dashboards = [_fetch_dashboard(dashboard['id']) for dashboard in results]
 
-        upload_dashboards(fetched_dashboards, upload_id)
+        _upload_dashboards(fetched_dashboards, upload_id)
 
         if response['count'] < response['page_size']:
             logging.info(f'Unfilled dashboard page {page}. Finishing crawl')
             break
         else:
             page += 1
-
-def main():
-    crawl_dashboards('test')
-    # upload_id = f'upload-wikipedia-documents-{time.time()}'
-    # try:
-    #     bulk_index_documents_sequential(upload_id, articles)
-
-    #     # Alternatively, bulk index documents concurrently
-    #     # bulk_index_documents_concurrent(upload_id, articles)
-
-    #     print("Bulk indexing completed successfully.")
-
-    # except indexing_api.ApiException as e:
-    #     print("Exception while bulk indexing documents: %s\n" % e.body)
-    #     exit(1)
-
-if __name__ == "__main__":
-    main()
