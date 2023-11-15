@@ -2,7 +2,10 @@ import constants
 
 def list_notebooks():
     # Send a request to list notebooks
-    response = constants.send_request("/api/2.0/workspace/list")
+    params = {
+        'path': '/Users/alexis.deschamps@databricks.com/example_folder_1'
+    }
+    response = constants.send_request("/api/2.0/workspace/list", params=params)
     print(response)
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
