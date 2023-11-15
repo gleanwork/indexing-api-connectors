@@ -93,8 +93,7 @@ def issue_bulk_index_documents_request(
           (len(documents), is_first_page, is_last_page), flush=True)
 
 
-def main():
-    upload_id = 'test'
+def crawl_tables(upload_id: str):
     catalogs = fetch_all_catalogs()
     for catalog in catalogs["catalogs"]:
         schemas = fetch_all_schemas(catalog)
@@ -114,6 +113,10 @@ def main():
             except indexing_api.ApiException as e:
                 print("Exception while bulk indexing documents: %s\n" % e.body)
                 exit(1)
+
+
+def main():
+    crawl_tables("test-id")
 
 
 if __name__ == "__main__":
