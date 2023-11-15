@@ -63,7 +63,7 @@ def upload_dashboards(dashboards: List[dict], upload_id: str):
         ))
 
     logging.info("Bulk indexed %d dashboards" %
-          (len(documents)), flush=True)
+          (len(documents)))
 
 
 
