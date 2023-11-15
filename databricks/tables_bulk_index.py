@@ -1,18 +1,11 @@
 import glean_indexing_api_client as indexing_api
-from glean_indexing_api_client.api import datasources_api
 from glean_indexing_api_client.api import documents_api
-from glean_indexing_api_client.model.custom_datasource_config import CustomDatasourceConfig
-from glean_indexing_api_client.model.object_definition import ObjectDefinition
 from glean_indexing_api_client.model.bulk_index_documents_request import BulkIndexDocumentsRequest
 from glean_indexing_api_client.model.document_definition import DocumentDefinition
 from glean_indexing_api_client.model.content_definition import ContentDefinition
 from glean_indexing_api_client.model.document_permissions_definition import DocumentPermissionsDefinition
 import json
-import requests
-import time
 from constants import API_CLIENT
-
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import constants
 
@@ -26,7 +19,8 @@ with open('testdata/schemas.json') as f:
 with open('testdata/tables.json') as f:
     example_tables = json.load(f)
 
-FETCH=False
+FETCH = True
+
 
 def fetch_all_catalogs():
     if FETCH:

@@ -9,7 +9,7 @@ DATASOURCE_NAME = "databricks"
 DASHBOARD_OBJECT_NAME = "Dashboard"
 
 _configuration = indexing_api.Configuration(
-    host="https://databricks-be.glean.com/api/index/v1",
+    host="https://glean-dev-be.glean.com/api/index/v1",
     access_token=os.getenv("GLEAN_API_KEY"))
 
 BASE_URL = "https://e2-dogfood-ext-glean-staging-1.staging.cloud.databricks.com"
