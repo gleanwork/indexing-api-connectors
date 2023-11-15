@@ -35,4 +35,4 @@ def send_request(endpoint: str, params=None, data=None, method='GET'):
 
     # Throw an error if the request was unsuccessful
     response.raise_for_status()
-    return response
+    return response.json()
