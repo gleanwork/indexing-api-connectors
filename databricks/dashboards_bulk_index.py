@@ -14,16 +14,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 PAGE_SIZE = 10
-DATASOURCE = "databricks"
-
-# Configure host and Bearer authorization
-configuration = indexing_api.Configuration(
-    host="https://<YOUR_GLEAN_DOMAIN>-be.glean.com/api/index/v1",
-    access_token="<YOUR_GLEAN_API_KEY>")
-
-# Initialize API client
-api_client = indexing_api.ApiClient(configuration)
-
 
 example_list_dashboards = json.loads("""{
     "count": 1,
@@ -219,7 +209,6 @@ def bulk_index_documents_concurrent(upload_id, articles, page_size=10):
 
 
 def main():
-    add_datasource()
     articles = fetch_all_wikipedia_articles('pizza', 50)
     upload_id = f'upload-wikipedia-documents-{time.time()}'
     try:
