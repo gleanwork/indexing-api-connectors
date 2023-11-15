@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATASOURCE_NAME = "databricks"
+DATASOURCE_NAME = "lakehousehackathon"
 DASHBOARD_OBJECT_NAME = "Dashboard"
 
 _configuration = indexing_api.Configuration(

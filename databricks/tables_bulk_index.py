@@ -10,7 +10,6 @@ from constants import API_CLIENT
 import constants
 
 PAGE_SIZE = 10
-DATASOURCE = "databricks"
 
 with open('testdata/catalog.json') as f:
     example_catalog = json.load(f)
@@ -101,7 +100,7 @@ def crawl_tables(upload_id: str):
             try:
                 issue_bulk_index_documents_request(
                     upload_id=upload_id,
-                    datasource=DATASOURCE,
+                    datasource=constants.DATASOURCE_NAME,
                     documents=docs,
                     is_first_page=False,
                     is_last_page=False)
