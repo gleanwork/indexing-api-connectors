@@ -48,7 +48,7 @@ def get_document_definition(table):
     """Construct document definition from Wikipedia article"""
     title = table["name"]
     url = f'https://e2-dogfood-ext-glean-staging-1.staging.cloud.databricks.com/explore/data/{table["catalog_name"]}/{table["schema_name"]}/{table["name"]}'
-    docid = str(table["metastore_id"])
+    docid = str(table["table_id"])
     return DocumentDefinition(
         datasource=constants.DATASOURCE_NAME,
         object_type="Table",
