@@ -7,6 +7,7 @@ from glean_indexing_api_client.model.bulk_index_documents_request import BulkInd
 from glean_indexing_api_client.model.document_definition import DocumentDefinition
 from glean_indexing_api_client.model.content_definition import ContentDefinition
 from glean_indexing_api_client.model.document_permissions_definition import DocumentPermissionsDefinition
+import json
 import requests
 import time
 
@@ -24,34 +25,77 @@ configuration = indexing_api.Configuration(
 api_client = indexing_api.ApiClient(configuration)
 
 
-def add_datasource():
-    """
-    Inserts/updates the custom datasource configuration.
-    (Preferably, should be done via Glean's workspace settings: https://app.glean.com/admin/setup/apps/)
-    """
-    
-    datasource_config = CustomDatasourceConfig(
-        name=DATASOURCE,
-        display_name="Databricks Staging",
-        datasource_category="KNOWLEDGE_HUB",
-        url_regex="^https?://en.wikipedia.org/wiki/.*",
-        is_test_datasource=True,  # Switch to false for production
-        object_definitions=[
-            ObjectDefinition(
-                doc_category='KNOWLEDGE_HUB',
-                name='Article')]
-    )
+example_list_dashboards = json.loads("""{
+    "count": 1,
+    "page": 1,
+    "page_size": 25,
+    "results": [
+        {
+            "id": "968b21bc-5da3-439c-a261-0fd72f00e4cc",
+            "slug": "example-v1-dashboard",
+            "name": "Example v1 dashboard",
+            "user_id": 8123713393700284,
+            "dashboard_filters_enabled": false,
+            "widgets": null,
+            "options": {
+                "parent": "folders/978236875178135",
+                "folder_node_status": "ACTIVE",
+                "folder_node_internal_name": "tree/978236875178153"
+            },
+            "is_draft": false,
+            "tags": [],
+            "updated_at": "2023-11-15T20:05:17Z",
+            "created_at": "2023-11-15T20:04:46Z",
+            "version": 3,
+            "color_palette": null,
+            "run_as_role": null,
+            "run_as_service_principal_id": null,
+            "data_source_id": null,
+            "warehouse_id": null,
+            "user": {
+                "id": 8123713393700284,
+                "name": "alexis.deschamps@databricks.com",
+                "email": "alexis.deschamps@databricks.com"
+            },
+            "is_favorite": false
+        }
+    ]
+}""")
 
-    try:
-        # Create datasources API instance
-        datasource_api = datasources_api.DatasourcesApi(api_client)
-        datasource_api.adddatasource_post(datasource_config)
-        print("Datasource configuration created/updated successfully.")
-    except indexing_api.ApiException as e:
-        print(
-            "Exception when calling DatasourcesApi->adddatasource_post: %s\n" %
-            e.body)
-        exit(1)
+example_dashboard = json.loads("""{
+    "id": "968b21bc-5da3-439c-a261-0fd72f00e4cc",
+    "slug": "example-v1-dashboard",
+    "name": "Example v1 dashboard",
+    "user_id": 8123713393700284,
+    "dashboard_filters_enabled": false,
+    "widgets": [],
+    "options": {
+        "parent": "folders/978236875178135",
+        "folder_node_status": "ACTIVE",
+        "folder_node_internal_name": "tree/978236875178153"
+    },
+    "is_draft": false,
+    "tags": [],
+    "updated_at": "2023-11-15T20:05:17Z",
+    "created_at": "2023-11-15T20:04:46Z",
+    "version": 3,
+    "color_palette": null,
+    "run_as_role": null,
+    "run_as_service_principal_id": null,
+    "data_source_id": null,
+    "warehouse_id": null,
+    "is_favorite": false,
+    "user": {
+        "id": 8123713393700284,
+        "name": "alexis.deschamps@databricks.com",
+        "email": "alexis.deschamps@databricks.com"
+    },
+    "parent": "folders/978236875178135",
+    "is_archived": false,
+    "can_edit": true,
+    "permission_tier": "CAN_MANAGE"
+}""")
+
 
 
 def fetch_all_wikipedia_articles(search_term: str = 'pizza', limit: int = 50):
