@@ -2,6 +2,7 @@ import glean_indexing_api_client as indexing_api
 from glean_indexing_api_client.api import documents_api
 from glean_indexing_api_client.model.bulk_index_documents_request import BulkIndexDocumentsRequest
 from glean_indexing_api_client.model.document_definition import DocumentDefinition
+from glean_indexing_api_client.model.user_reference_definition import UserReferenceDefinition
 from glean_indexing_api_client.model.content_definition import ContentDefinition
 from glean_indexing_api_client.model.document_permissions_definition import DocumentPermissionsDefinition
 import json
@@ -55,6 +56,14 @@ def get_document_definition(table):
         id=docid,
         title=title,
         view_url=url,  # should match the url_regex in the datasource config
+        created_at=int(table["created_at"] / 1000),
+        author=UserReferenceDefinition(
+            email=table["created_by"],
+        ),
+        updated_at=int(table["updated_at"] / 1000),
+        updated_by=UserReferenceDefinition(
+            email=table["updated_by"],
+        ),
         body=ContentDefinition(
             mime_type="text/plain",
             text_content=""),
