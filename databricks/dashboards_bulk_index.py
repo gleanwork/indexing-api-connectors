@@ -13,7 +13,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 PAGE_SIZE = 10
-DATASOURCE = "wikipediatest"
+DATASOURCE = "databricks"
 
 # Configure host and Bearer authorization
 configuration = indexing_api.Configuration(
@@ -32,7 +32,7 @@ def add_datasource():
     
     datasource_config = CustomDatasourceConfig(
         name=DATASOURCE,
-        display_name="Sample Wikipedia Datasource",
+        display_name="Databricks Staging",
         datasource_category="KNOWLEDGE_HUB",
         url_regex="^https?://en.wikipedia.org/wiki/.*",
         is_test_datasource=True,  # Switch to false for production
