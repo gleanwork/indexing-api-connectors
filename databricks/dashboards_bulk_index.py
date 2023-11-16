@@ -1,5 +1,3 @@
-import glean_indexing_api_client as indexing_api
-from glean_indexing_api_client.api import datasources_api
 from glean_indexing_api_client.api import documents_api
 from glean_indexing_api_client.model.custom_datasource_config import CustomDatasourceConfig
 from glean_indexing_api_client.model.object_definition import ObjectDefinition

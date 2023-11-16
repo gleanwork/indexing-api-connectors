@@ -7,6 +7,7 @@ load_dotenv()
 
 DATASOURCE_NAME = "lakehousehackathon"
 DASHBOARD_OBJECT_NAME = "Dashboard"
+NOTEBOOK_OBJECT_NAME = "Notebook"
 
 _configuration = indexing_api.Configuration(
     host="https://databricks-be.glean.com/api/index/v1",
@@ -38,4 +39,7 @@ def send_request(endpoint: str, params=None, data=None, method='GET'):
 
     # Throw an error if the request was unsuccessful
     response.raise_for_status()
-    return response.json()
+    try:
+        return response.json()
+    except:
+        return response.text
