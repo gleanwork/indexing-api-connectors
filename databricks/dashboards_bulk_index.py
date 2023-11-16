@@ -7,10 +7,13 @@ from glean_indexing_api_client.model.bulk_index_documents_request import BulkInd
 from glean_indexing_api_client.model.document_definition import DocumentDefinition
 from glean_indexing_api_client.model.content_definition import ContentDefinition
 from glean_indexing_api_client.model.document_permissions_definition import DocumentPermissionsDefinition
+from glean_indexing_api_client.model.user_reference_definition import UserReferenceDefinition
+
 import json
 import requests
 import time
 import logging
+from datetime import datetime, timezone
 
 logging.getLogger().setLevel(logging.INFO)
 from typing import List
@@ -19,6 +22,17 @@ from constants import send_request, DATASOURCE_NAME, DASHBOARD_OBJECT_NAME, BASE
 
 PAGE_SIZE = 10
 
+def _parse_epoch_from_datetime_string(datetime_string: str):
+    fmt = "%Y-%m-%dT%H:%M:%SZ" 
+
+    # Create a datetime object from your string
+    dt = datetime.strptime(datetime_string, fmt)
+    # Convert datetime object to seconds since the Unix Epoch
+    epochseconds = int(dt.replace(tzinfo=timezone.utc).timestamp())
+    return epochseconds
+    # epoch_seconds = int(time.mktime(dt.timetuple(), tz=pytz.UTC))
+    # return epoch_seconds
+
 def _upload_dashboards(dashboards: List[dict], upload_id: str):
     """Upload dashboards to Glean"""
     documents = []
@@ -26,15 +40,19 @@ def _upload_dashboards(dashboards: List[dict], upload_id: str):
     # Convert dashboards to document representations
     for dashboard in dashboards:
         # Stitch content from dashboard's widgets
-        stitched_content = ''
-        stitched_content += dashboard['name']
+        stitched_content = [dashboard['name']]
         if dashboard['widgets']:
             # TODO: Consider supporting further details in the widget; such as query details for a visualization
             for widget in dashboard['widgets']:
                 options = widget['options']
+                if 'title' in options:
+                    stitched_content.append(options['title'])
+                if 'description' in options:
+                    stitched_content.append(options['description'])
                 if 'visualization' in widget:
                     visualization = widget['visualization']
-                    stitched_content += options['title'] + ' ' + options['description'] + ' ' + visualization['name'] + ' ' + visualization['description']
+                    stitched_content.append(visualization['name'])
+                    stitched_content.append(visualization['description'])
 
         documents.append(
             DocumentDefinition(
@@ -42,14 +60,21 @@ def _upload_dashboards(dashboards: List[dict], upload_id: str):
                 object_type=DASHBOARD_OBJECT_NAME,
                 id=dashboard['id'],
                 title=dashboard['name'],
+                created_at=_parse_epoch_from_datetime_string(dashboard['created_at']),
+                updated_at=_parse_epoch_from_datetime_string(dashboard['updated_at']),
+                author=UserReferenceDefinition(
+                    datasource_user_id=str(dashboard['user_id']),
+                ),
+                tags=dashboard['tags'],
                 view_url=f'{BASE_URL}/sql/dashboards/{dashboard["id"]}',
                 body=ContentDefinition(
                     mime_type='text/plain',
-                    text_content=stitched_content),
+                    text_content=' '.join(stitched_content)),
                 # TODO: Add permissions via dashboard's ACL from https://docs.databricks.com/api/workspace/dbsqlpermissions/get
                 permissions=DocumentPermissionsDefinition(allow_anonymous_access=True)
             )
         )
+
     document_api = documents_api.DocumentsApi(API_CLIENT)
 
     document_api.bulkindexdocuments_post(

@@ -16,6 +16,7 @@ def add_datasource(datasource_name: str):
         datasource_category="KNOWLEDGE_HUB",
         url_regex="^https?://e2-dogfood-ext-glean-staging-1.staging.cloud.databricks.com/.*",
         is_test_datasource=True,  # Switch to false for production
+        icon_url='https://cdn.bfldr.com/9AYANS2F/at/tcrz8bc986mhsq69gn9x2cvn/databricks-favicon-48x48-orange.png?auto=webp&format=png',
         object_definitions=[
             ObjectDefinition(
                 doc_category='KNOWLEDGE_HUB',

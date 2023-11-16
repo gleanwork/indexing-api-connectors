@@ -22,7 +22,7 @@ def main():
             documents=[],
             is_first_page=True,
             is_last_page=False,
-            force_restart_upload=False
+            force_restart_upload=True
         ))
 
     crawl_dashboards(upload_id=upload_id)
