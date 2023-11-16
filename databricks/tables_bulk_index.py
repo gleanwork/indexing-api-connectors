@@ -4,9 +4,11 @@ from glean_indexing_api_client.model.bulk_index_documents_request import BulkInd
 from glean_indexing_api_client.model.document_definition import DocumentDefinition
 from glean_indexing_api_client.model.user_reference_definition import UserReferenceDefinition
 from glean_indexing_api_client.model.content_definition import ContentDefinition
+from glean_indexing_api_client.model.comment_definition import CommentDefinition
 from glean_indexing_api_client.model.document_permissions_definition import DocumentPermissionsDefinition
 import json
 from constants import API_CLIENT
+from typing import List
 
 import constants
 
@@ -42,6 +44,18 @@ def fetch_all_tables(schema):
         return example_tables
 
 
+def get_comment_definition(table) -> List[CommentDefinition]:
+    comments = []
+    for column in table["columns"]:
+        comments.append(CommentDefinition(
+            id=column["name"],
+            content=ContentDefinition(
+                mime_type="text/plain",
+                text_content=column["name"] + " " + column.get("comment", ""),
+            ),
+        ))
+    return comments
+
 def get_document_definition(table):
     """Construct document definition from Wikipedia article"""
     title = table["name"]
@@ -63,7 +77,11 @@ def get_document_definition(table):
         ),
         body=ContentDefinition(
             mime_type="text/plain",
-            text_content=""),
+            text_content=table.get("comment", "")
+        ),
+        container=table["schema_name"],
+        containerObjectType="schema",
+        comments=get_comment_definition(table),
         permissions=DocumentPermissionsDefinition(allow_anonymous_access=True)
     )
 
