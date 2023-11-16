@@ -21,6 +21,9 @@ def add_datasource(datasource_name: str):
             ObjectDefinition(
                 doc_category='KNOWLEDGE_HUB',
                 name=DASHBOARD_OBJECT_NAME),
+            ObjectDefinition(
+                doc_category='KNOWLEDGE_HUB',
+                name="Table"),
             # TODO: Add object definitions for notebooks and tables
                 ]
     )
