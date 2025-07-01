@@ -31,7 +31,7 @@ def read_csv(file_name):
             reader = csv.DictReader(file)
             for row in reader:
                 shortcut_data = {
-                    'input_alias': row.get('input_alias') + str(int(time.time())),
+                    'input_alias': row.get('input_alias'),
                     'destination_url': row.get('destination_url'),
                     'created_by': row.get('created_by')
                 }
