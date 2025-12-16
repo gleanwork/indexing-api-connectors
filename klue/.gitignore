@@ -1,0 +1,18 @@
+# Python cache
+__pycache__
+
+# Pythom virtual Environment
+__*
+
+# Environment files
+.env*
+
+# Dumb MAC File
+.DS_Store
+
+# Test files
+test*
+
+# Data files
+*.csv
+*.json
