@@ -1,0 +1,2 @@
+glean-indexing-api-client @ https://app.glean.com/meta/indexing_api_client.zip
+requests

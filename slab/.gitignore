@@ -1,0 +1,14 @@
+# Python cache
+__pycache__
+
+# Pythom virtual Environment
+__slab__
+
+# Environment files
+.env*
+
+# Dumb MAC File
+.DS_Store
+
+# Test files
+test*
