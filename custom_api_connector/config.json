@@ -1,0 +1,24 @@
+{
+  "datasource_name": "custom_api",
+  "datasource_display_name": "Custom API Datasource",
+  "datasource_category": "PUBLISHED_CONTENT",
+  "object_type": "Article",
+  "url_regex": "^https://example.com/.*",
+  "is_test_datasource": true,
+
+  "source_api": {
+    "endpoint": "https://api.example.com/v1/items",
+    "method": "GET",
+    "headers": {},
+    "params": {},
+    "results_key": "results"
+  },
+
+  "field_mappings": {
+    "id": "id",
+    "title": "title",
+    "body": "description",
+    "view_url": "url",
+    "mime_type": "text/html"
+  }
+}

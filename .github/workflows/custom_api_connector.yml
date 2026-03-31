@@ -1,0 +1,30 @@
+name: Custom API Connector
+
+on:
+  schedule:
+    # Runs daily at 2:00 AM UTC — adjust as needed
+    - cron: "0 2 * * *"
+  workflow_dispatch: # Allow manual runs
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r custom_api_connector/requirements.txt
+
+      - name: Run connector
+        env:
+          GLEAN_DOMAIN: ${{ secrets.GLEAN_DOMAIN }}
+          GLEAN_API_TOKEN: ${{ secrets.GLEAN_API_TOKEN }}
+          SOURCE_API_TOKEN: ${{ secrets.SOURCE_API_TOKEN }}
+        run: python custom_api_connector/custom_api_connector.py
