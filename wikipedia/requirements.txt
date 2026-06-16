@@ -1,4 +1,4 @@
-certifi==2023.7.22
+certifi==2024.7.4
 charset-normalizer==3.2.0
 glean-indexing-api-client @ https://app.glean.com/meta/indexing_api_client.zip
 idna==3.15
