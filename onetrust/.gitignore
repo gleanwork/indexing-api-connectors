@@ -1,0 +1,6 @@
+.env
+.env.*
+__onetrust__
+AssessmentList.csv
+__pycache__/
+*.pyc
